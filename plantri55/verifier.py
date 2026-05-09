@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-narboni = open("output_verifier/canon_codes_my_gen.txt", "r")
+narboni = open("output_verifier/output_my_gen.txt", "r")
 
 hs = dict()
 

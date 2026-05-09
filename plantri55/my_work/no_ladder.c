@@ -1,9 +1,9 @@
 #pragma once
 #include "../plantri.c"
 
-static void testcanon_first_init(EDGE *givenedge, int representation[], int colour[]);
-static int testcanon_init(EDGE *givenedge, int representation[], int colour[]);
-static int testcanon_mirror_init(EDGE *givenedge, int representation[], int colour[]);
+static void my_testcanon_first_init(EDGE *givenedge, int representation[], int colour[]);
+static int my_testcanon_init(EDGE *givenedge, int representation[], int colour[]);
+static int my_testcanon_mirror_init(EDGE *givenedge, int representation[], int colour[]);
 
 static void write_alpha(FILE *f, int doflip);
 static void write_graph6(FILE *f, int doflip);
@@ -305,13 +305,13 @@ static int gadgets_priority(int nbtot, int nbop, int doflip){
     repr[0] = MAXN + MAXE + 10;
     int colour[nv];
     for (int i = 0; i < nv; i++){
-        colour[i] = MAXE + MAXN;
+        colour[i] = degree[i] + MAXN;
     }
     for (int i = 0; i < nv; i++){
         EDGE *e = firstedge[i];
         for (int j = 0; j < degree[i]; j++){
-            testcanon_init(e, repr, colour);
-            testcanon_mirror_init(e, repr, colour);
+            my_testcanon_init(e, repr, colour);
+            my_testcanon_mirror_init(e, repr, colour);
             e = e->next;
         }
     }
