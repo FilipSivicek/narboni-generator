@@ -65,21 +65,21 @@ draw z13--z10;
 
 endfig;
 
-%A
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% A
 beginfig(2)
 u:=10mm;
 d:= 2u;
 s:= 2.5u;
 
-z01 = (0,0);
-z02 = z01 + (10u, 0);
-z03 = z01 + (0, 10u);
-z04 = z01 + (10u, 10u);
+z1 = (0,0);
+z2 = z1 + (10u, 0);
+z3 = z1 + (0, 10u);
+z4 = z1 + (10u, 10u);
 
-z5 = z01 + (d,d);
-z6 = z02 + (-d, d);
-z7 = z03 + (d, -d);
-z8 = z04 + (-d, -d);
+z5 = z1 + (d,d);
+z6 = z2 + (-d, d);
+z7 = z3 + (d, -d);
+z8 = z4 + (-d, -d);
 
 z9 = z5 + (s, 0);
 z10 = z9 + (0, s);
@@ -102,14 +102,16 @@ draw z9--z10--z11;
 draw z12--z13--z14;
 draw z13--z10;
 
-label.lft(btex $5+$ etex scaled LabelScale, (z1 + z3 + z5 + z7)/4);
+label.lft(btex $5+(f)$ etex scaled LabelScale, (z1 + z3 + z5 + z7)/4);
 label.bot(btex $5+$ etex scaled LabelScale, (z1+z2+z5+z6)/4);
 label.rt(btex  $5+$ etex scaled LabelScale, (z2+z6+z8+z4)/4);
 label.top(btex $5+$ etex scaled LabelScale, (z3+z4+z7+z8)/4);
+label(btex $f_1$ etex scaled LabelScale, (z7 + z10 + z11 + z12 + z13) / 5 + (-u, u));
+label(btex $f_2$ etex scaled LabelScale, (z5 + z9 + z10 + z11) / 4);
 
 drawArrow((12u, 5u), 10u);
 
-z21 = (27u,0);
+z21 = (32u,0);
 z22 = z21 + (10u, 0);
 z23 = z21 + (0, 10u);
 z24 = z21 + (10u, 10u);
@@ -147,14 +149,16 @@ draw z38--z36;
 draw z37--z35;
 
 
-label.lft(btex $4+$ etex scaled LabelScale, (z38+z37+z35+z36)/4);
+label.lft(btex $4+(f)$ etex scaled LabelScale, (z38+z37+z35+z36)/4);
 label.bot(btex $6+$ etex scaled LabelScale, (z37+z22+z25+z26)/4);
 label.rt(btex  $5+$ etex scaled LabelScale, (z22+z26+z28+z24)/4);
 label.top(btex $6+$ etex scaled LabelScale, (z38+z24+z36+z28)/4);
+label(btex $f_1$ etex scaled LabelScale, (z27 + z30 + z31 + z32 + z33) / 5 + (-u, u));
+label(btex $f_2$ etex scaled LabelScale, (z25 + z29 + z30 + z31) / 4);
 
 endfig;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%B
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% B
 beginfig(3)
 u:=10mm;
 d:= 2u;
@@ -221,7 +225,7 @@ label.top(btex $6+$ etex scaled LabelScale, (P[3]+P[4]+P[7]+P[8])/4);
 
 endfig;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%C
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% C
 beginfig(4)
 u:=10mm;
 d:= 2u;
@@ -263,6 +267,7 @@ label.lft(btex $5+$ etex scaled LabelScale, (P[1] + P[3] + P[5] + P[7])/4);
 label.bot(btex $5+$ etex scaled LabelScale, (P[1]+P[2]+P[5]+P[6])/4);
 label.rt(btex  $5+$ etex scaled LabelScale, (P[2]+P[6]+P[8]+P[4])/4);
 label.top(btex $5+$ etex scaled LabelScale, (P[3]+P[4]+P[7]+P[8])/4);
+label(btex $f$ etex scaled LabelScale, (P7 + P10 + P11 + P12 + P13) / 5 + (-u, u));
 
 drawArrow((12u, 5u), 10u);
 
@@ -303,10 +308,11 @@ label.lft(btex $5+$ etex scaled LabelScale, (P[1] + P[3] + P[5] + P[7])/4);
 label.bot(btex $5+$ etex scaled LabelScale, (P[1]+P[2]+P[5]+P[6])/4);
 label.rt(btex  $5+$ etex scaled LabelScale, (P[2]+P[6]+P[8]+P[4])/4);
 label.top(btex $5+$ etex scaled LabelScale, (P[3]+P[4]+P[7]+P[8])/4);
+label(btex $f$ etex scaled LabelScale, (P7 + P10 + P11 + P12 + P13) / 5 + (-u, u));
 
 endfig;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%D
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% D
 beginfig(5)
 
 u:=10mm;
@@ -346,6 +352,7 @@ label(btex $4+$ etex scaled LabelScale, (P[2] + P[3])/2);
 label(btex $5+$ etex scaled LabelScale, (P[3] + P[4])/2);
 label(btex $5+$ etex scaled LabelScale, (P[4] + P[5])/2);
 label(btex $4+$ etex scaled LabelScale, (P[5] + P[1])/2);
+label(btex $f$ etex scaled LabelScale, (P6 + P11) / 2 + (0, u));
 
 drawArrow((12u, 5u), 10u);
 
@@ -376,10 +383,11 @@ label(btex $4+$ etex scaled LabelScale, (P[2] + P[3])/2);
 label(btex $5+$ etex scaled LabelScale, (P[3] + P[4])/2);
 label(btex $5+$ etex scaled LabelScale, (P[4] + P[5])/2);
 label(btex $4+$ etex scaled LabelScale, (P[5] + P[1])/2);
+label(btex $f$ etex scaled LabelScale, (P6 + P11) / 2 + (-0.5u, u));
 
 endfig;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%E
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% E
 beginfig(6)
 pair P[];
 P[1]:= (0,0);
@@ -411,9 +419,11 @@ draw P[13]--P[14];
 
 label(btex $6+$ etex scaled LabelScale, (P[1] + P[2])/2);
 label(btex $5+$ etex scaled LabelScale, (P[2] + P[3])/2);
+label(btex $f$ etex scaled LabelScale, (P[2] + P[3])/2 + (-1.5u, 3u));
 label(btex $4+$ etex scaled LabelScale, (P[3] + P[4])/2);
 label(btex $4+$ etex scaled LabelScale, (P[4] + P[5])/2);
 label(btex $5+$ etex scaled LabelScale, (P[5] + P[1])/2);
+
 
 drawArrow((12u, 4u), 10u);
 
@@ -438,6 +448,7 @@ label(btex $6+$ etex scaled LabelScale, (P[2] + P[3])/2);
 label(btex $4+$ etex scaled LabelScale, (P[3] + P[4])/2);
 label(btex $4+$ etex scaled LabelScale, (P[4] + P[5])/2);
 label(btex $5+$ etex scaled LabelScale, (P[5] + P[1])/2);
+label(btex $f$ etex scaled LabelScale, (P[2] + P[3])/2 + (-1u, 3.7u));
 
 endfig;
 
@@ -499,7 +510,7 @@ label(btex $4+$ etex scaled LabelScale, (P[5] + P[1])/2);
 
 endfig;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%G
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% G
 beginfig(8)
 
 pair P[];
@@ -522,11 +533,11 @@ draw P[5]--P[6];
 label(btex $5+$ etex scaled LabelScale, (P[1] + P[2])/2);
 label(btex $5+$ etex scaled LabelScale, (P[2] + P[3])/2);
 label(btex $5+$ etex scaled LabelScale, (P[3] + P[4])/2);
-label(btex $5+$ etex scaled LabelScale, (P[4] + P[1])/2);
+label(btex $5+(f)$ etex scaled LabelScale, (P[4] + P[1])/2 + (-u, 0u));
 
 drawArrow((6.5u, 3.5u), 6u);
 
-P[1]:= (15u,-0.5u);
+P[1]:= (17u,-0.5u);
 P[2]:= P[1] + (8u, 0);
 P[3]:= P[1] + (0, 8u);
 P[4]:= P[1] + (8u, 8u);
@@ -547,13 +558,13 @@ draw P[3]--P[7];
 draw P[4]--P[8];
 
 label(btex $6+$ etex scaled LabelScale, (P[1] + P[2])/2);
-label(btex $5+$ etex scaled LabelScale, (P[1] + P[3])/2);
+label(btex $5+(f)$ etex scaled LabelScale, (P[1] + P[3])/2 + (-u, 0u));
 label(btex $6+$ etex scaled LabelScale, (P[3] + P[4])/2);
 label(btex $5+$ etex scaled LabelScale, (P[4] + P[2])/2);
 
 endfig;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%H
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% H
 beginfig(9)
 
 pair P[];
@@ -580,7 +591,8 @@ draw P[10]--P[6]--P[7]--P[8]--P[9];
 label(btex $5+$ etex scaled LabelScale, (P[1] + P[2])/2);
 label(btex $5+$ etex scaled LabelScale, (P[2] + P[3])/2);
 label(btex $4+$ etex scaled LabelScale, (P[3] + P[4])/2);
-label(btex $6+$ etex scaled LabelScale, (P[1] + P[3] + P[4] + P[5])/4);
+label(btex $6+$ etex scaled LabelScale, (P[1] + P[3] + P[4] + P[5])/4 + (0, 0.5u));
+label(btex $(f)$ etex scaled LabelScale, (P[1] + P[3] + P[4] + P[5])/4 + (0, -u));
 label(btex $4+$ etex scaled LabelScale, (P[5] + P[1])/2);
 
 drawArrow((10u, 1.5u), 7u);
@@ -598,7 +610,7 @@ draw P[6]--P[7]--P[8]--P[9]--P[10]--P[6];
 label(btex $5+$ etex scaled LabelScale, (P[1] + P[2])/2);
 label(btex $5+$ etex scaled LabelScale, (P[2] + P[3])/2);
 label(btex $5+$ etex scaled LabelScale, (P[3] + P[4])/2);
-label(btex $5+$ etex scaled LabelScale, (P[4] + P[5])/2);
+label(btex $5+(f)$ etex scaled LabelScale, (P[4] + P[5])/2);
 label(btex $5+$ etex scaled LabelScale, (P[5] + P[1])/2);
 
 endfig;
@@ -685,8 +697,6 @@ draw p2--orig--p3;
 
 pickup pencircle scaled 14pt;
 draw orig;
-
-label
 
 endfig;
 

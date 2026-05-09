@@ -20409,7 +20409,7 @@ get_graph_from_file(void)
 
 /****************************************************************************/
 
-static int all_repr[10][MAXE/3][MAXE];
+static int all_repr[10][MAXE][MAXE];
 static int repr_found[10];
 
 static int colour[MAXN];
@@ -20417,9 +20417,8 @@ static int repr[MAXE];
 static int starting_gadget[MAXN];
 
 static int same_repr(int repr1[], int repr2[]){
-    int end = ne;
     int vertex_checked = 0;
-    for (int i = 0; i < end; i++){
+    for (int i = 0; i < ne; i++){
         if (repr1[i] != repr2[i]){
             return 0;
         }
@@ -20434,8 +20433,7 @@ static int same_repr(int repr1[], int repr2[]){
 }
 
 static void save_repr(int repr[], int type){
-    int end = ne;
-    for (int i = 0; i < end; i++){
+    for (int i = 0; i < ne; i++){
         all_repr[type][repr_found[type]][i] = repr[i];
     }
 
@@ -20474,7 +20472,7 @@ initialize_narboni(void)
     extend4(e->next->next, list);
     extend4(e->next, list);
     extend4(e, list);
-    for (int i = 0; i < MAXN + 10; i++){
+    for (int i = 0; i < MAXN; i++){
         colour[i] = MAXN + MAXE;
     }
 
@@ -20709,8 +20707,7 @@ int is_valid_extend_a(EDGE *e){
             return 0;
         }
     }
-
-    //return degree[e->start] == 4 && degree[e->end] == 5 && degree[e->next->end] == 5 && degree[e->invers->prev->prev->invers->start] == 4
+    
     return 1;
 }
 
@@ -21002,34 +20999,544 @@ static int skip_gadget_h(EDGE* e){
     return 0;
 }
 
-static int is_canon_4_fives(int vert, int *nbtot){
+
+/**************************************************************************/
+
+// This function tests, if given edge can be start of canonical labeling
+// This function also calculates, if any automorphisms are found
+// F.S.
+static int 
+my_testcanon(EDGE *givenedge, int representation[], int colour[])
+
+/* Tests whether starting from a given edge and constructing the code in
+   "->next" direction, an automorphism or even a better representation 
+   can be found. Returns 0 for failure, 1 for an automorphism and 2 for 
+   a better representation.  This function exits as soon as a better 
+   representation is found. A function that computes and returns the 
+   complete better representation can work pretty similar.*/
+{
+    if (colour[givenedge->start] < *representation){
+        return 0;
+    }
+    representation++;
+
+    if (colour[givenedge->end] < *representation){
+        return 0;
+    }
+    representation++;
+
+    EDGE *temp, *run;  
+    EDGE *startedge[MAXN+1]; /* startedge[i] is the starting edge for 
+                        exploring the vertex with the number i+1 */
+    int number[MAXN], i;   /* The new numbers of the vertices, starting 
+                        at 1 in order to have "0" as a possibility to
+                        mark ends of lists and not yet given numbers */
+    int last_number, actual_number, vertex;
+
+    for (i = 0; i < nv; i++) number[i] = 0;
+
+    number[givenedge->start] = 1; 
+    
+    if (givenedge->start != givenedge->end) /* no loop start */
+      {
+        number[givenedge->end] = 2;
+        last_number = 2;
+        startedge[1] = givenedge->invers;
+      }
+    else last_number = 1 ; 
+
+    actual_number = 1;
+    temp = givenedge;
+
+/* A representation is a clockwise ordering of all neighbours ended with a 0.
+   The neighbours are numbered in the order that they are reached by the BFS 
+   procedure. In case a vertex is reached for the first time, not the (new)
+   number of the vertex is listed, but its colour. When the list around a
+   vertex is finished, it is ended with a 0. Since the colours can be 
+   distinguished from the vertices (requirement for the colour function), the
+   adjacency list can be reconstructed: Every time a colour is listed, its
+   number would be the smallest number not given yet.
+   Since the edges when a vertex is reached for the first time are remembered,
+   for these edges we in fact have more than just the vertex information -- for
+   these edges we also have the exact information which edge occurs in the
+   cyclic order. This makes the routine work also for double edges.
+
+   Since every representation starts with the colour of vertex 2, which is
+   the same colour all the time, we do not have to store that. 
+
+   In case of a loop as the starting point, the colour of 1 is omitted. 
+   Nevertheless also in this case it cannot be mixed up with a non-loop
+   starting point, since the number of times a colour occurs is larger
+   for loop starters than for non-loop starters.
+
+   Every first entry in a new clockwise ordering (the starting point of the
+   edge it was numbered from is determined by the entries before (the first
+   time it occurs in the list to be exact), so this is not given either. 
+   The K4 could be denoted  c3 c4 0 4 3 0 2 3 0 3 2 0 if ci is the colour
+   of vertex i.  Note that the colour of vertex 1 is -- by definition --
+   always the smallest one */
+
+    while (last_number < nv)
+    {  
+        for (run = temp->next; run != temp; run = run->next)
+    /* this loop marks all edges around temp->origin. */
+          { vertex = run->end;
+            if (!number[vertex])
+              { startedge[last_number] = run->invers;
+                last_number++; number[vertex] = last_number;
+                vertex = colour[vertex]; }
+            else vertex = number[vertex];
+            if (vertex > (*representation)) return 0;
+            if (vertex < (*representation)) return 2;
+            representation++; 
+          }
+   /* check whether representation[] is also at the end of a cyclic list */
+        if ((*representation) != 0) return 2; 
+        representation++;
+   /* Next vertex to explore: */
+        temp = startedge[actual_number];  actual_number++; 
+    }
+
+    while (actual_number <= nv) 
+                /* Now we know that all numbers have been given */
+    {  
+        for (run = temp->next; run != temp; run = run->next)
+    /* this loop marks all edges around temp->origin. */
+          { 
+            vertex = number[run->end];
+            if (vertex > (*representation)) return 0;
+            if (vertex < (*representation)) return 2;
+            representation++;
+          }
+   /* check whether representation[] is also at the end of a cyclic list */
+        if ((*representation) != 0) return 2; 
+        representation++;
+   /* Next vertex to explore: */
+        temp = startedge[actual_number];  actual_number++;
+    }
+
+    return 1;
+}
+
+/*****************************************************************************/
+
+static int 
+my_testcanon_mirror(EDGE *givenedge, int representation[], int colour[])
+
+/* Tests whether starting from a given edge and constructing the code in
+   "->prev" direction, an automorphism or even a better representation can 
+   be found. Comments see testcanon -- it is exactly the same except for 
+   the orientation */
+{
+    if (colour[givenedge->start] < *representation){
+        return 0;
+    }
+    representation++;
+
+    if (colour[givenedge->end] < *representation){
+        return 0;
+    }
+    representation++;
+
+    EDGE *temp, *run;  
+    EDGE *startedge[MAXN+1];
+    int number[MAXN], i; 
+    int last_number, actual_number, vertex;
+
+    for (i = 0; i < nv; i++) number[i] = 0;
+
+    number[givenedge->start] = 1; 
+
+    if (givenedge->start != givenedge->end)
+      {
+        number[givenedge->end] = 2;
+        last_number = 2;
+        startedge[1] = givenedge->invers;
+      }
+    else last_number = 1; 
+
+    actual_number = 1;
+    temp = givenedge;
+
+    while (last_number < nv)
+    {  
+        for (run = temp->prev; run != temp; run = run->prev)
+          { vertex = run->end;
+            if (!number[vertex])
+              { startedge[last_number] = run->invers;
+                last_number++; number[vertex] = last_number;
+                vertex = colour[vertex]; }
+            else vertex = number[vertex];
+            if (vertex > (*representation)) return 0;
+            if (vertex < (*representation)) return 2;
+            representation++; 
+          }
+        if ((*representation) != 0) return 2; 
+        representation++;
+        temp = startedge[actual_number];  actual_number++; 
+    }
+
+    while (actual_number <= nv) 
+    {  
+        for (run = temp->prev; run != temp; run = run->prev)
+          { 
+            vertex = number[run->end];
+            if (vertex > (*representation)) return 0;
+            if (vertex < (*representation)) return 2;
+            representation++;
+          }
+        if ((*representation) != 0) return 2; 
+        representation++;
+        temp = startedge[actual_number];  actual_number++; 
+    }
+
+    return 1;
+}
+
+/****************************************************************************/
+ 
+static void
+my_testcanon_first_init(EDGE *givenedge, int representation[], int colour[])
+ 
+/* Tests whether starting from a given edge and constructing the code in
+   "->next" direction, an automorphism or even a better representation can 
+   be found. A better representation will be completely constructed and 
+   returned in "representation".  It works pretty similar to testcanon except 
+   for obviously necessary changes, so for extensive comments see testcanon */
+{
+
+    register EDGE *run;
+    register int vertex;
+    EDGE *temp;  
+    EDGE *startedge[MAXN+1]; 
+    int number[MAXN], i; 
+    int last_number, actual_number;
+    
+    *representation = colour[givenedge->start];
+    representation++;
+    *representation = colour[givenedge->end];
+    representation++;
+    
+    for (i = 0; i < nv; i++) number[i] = 0;
+    
+    number[givenedge->start] = 1;
+    if (givenedge->start != givenedge->end)
+    {
+        number[givenedge->end] = 2;
+        last_number = 2;
+        startedge[1] = givenedge->invers;
+    }
+    else last_number = 1; 
+    
+    actual_number = 1;
+    temp = givenedge;
+    
+    while (last_number < nv)
+    {  
+        for (run = temp->next; run != temp; run = run->next)
+          { vertex = run->end;
+            if (!number[vertex])
+              { startedge[last_number] = run->invers;
+                last_number++; number[vertex] = last_number; 
+                *representation = colour[vertex]; }
+            else *representation = number[vertex]; 
+            representation++;
+          }
+        *representation = 0;
+        representation++;
+        temp = startedge[actual_number];  actual_number++;
+    }
+
+    while (actual_number <= nv) 
+    {  
+        for (run = temp->next; run != temp; run = run->next)
+          { 
+            *representation = number[run->end]; representation++;
+          }
+        *representation = 0;
+        representation++;
+        temp = startedge[actual_number];  actual_number++;
+    }
+
+    return;
+}
+
+/****************************************************************************/
+ 
+static void
+my_testcanon_first_init_mirror(EDGE *givenedge, int representation[],
+                            int colour[])
+
+/* Tests whether starting from a given edge and constructing the code in
+   "->prev" direction, an automorphism or even a better representation can
+   be found. A better representation will be completely constructed and
+   returned in "representation".  It works pretty similar to testcanon except
+   for obviously necessary changes, so for extensive comments see testcanon */
+{
+    register EDGE *run;
+    register int vertex;
+    EDGE *temp;  
+    EDGE *startedge[MAXN+1]; 
+    int number[MAXN], i; 
+    int last_number, actual_number;
+
+    *representation = colour[givenedge->start];
+    representation++;
+    *representation = colour[givenedge->end];
+    representation++;
+ 
+    for (i = 0; i < nv; i++) number[i] = 0;
+ 
+    number[givenedge->start] = 1; 
+    if (givenedge->start != givenedge->end)
+      {
+        number[givenedge->end] = 2;
+        last_number = 2;
+        startedge[1] = givenedge->invers;
+      }
+    else last_number = 1; 
+
+    actual_number = 1;
+    temp = givenedge;
+
+    while (last_number < nv)
+    {  
+        for (run = temp->prev; run != temp; run = run->prev)
+          { vertex = run->end;
+            if (!number[vertex])
+              { startedge[last_number] = run->invers;
+                last_number++; number[vertex] = last_number; 
+                *representation = colour[vertex]; }
+            else *representation = number[vertex]; 
+            representation++;
+          }
+        *representation = 0;
+        representation++;
+        temp = startedge[actual_number];  actual_number++;
+    }
+
+    while (actual_number <= nv) 
+    {  
+        for (run = temp->prev; run != temp; run = run->prev)
+          { 
+            *representation = number[run->end]; representation++;
+          }
+        *representation = 0;
+        representation++;
+        temp = startedge[actual_number];  actual_number++;
+    }
+
+    return;
+}
+
+/****************************************************************************/
+
+static int 
+my_testcanon_init(EDGE *givenedge, int representation[], int colour[])
+
+/* Tests whether starting from a given edge and constructing the code in
+   "->next" direction, an automorphism or even a better representation can 
+   be found. A better representation will be completely constructed and 
+   returned in "representation".  It works pretty similar to testcanon except 
+   for obviously necessary changes, so for extensive comments see testcanon */
+{
+    register EDGE *run;
+    register int vertex;
+    EDGE *temp;  
+    EDGE *startedge[MAXN+1]; 
+    int number[MAXN], i; 
+    int better = 0; /* is the representation already better ? */
+    int last_number, actual_number;
+
+    if (colour[givenedge->start] < *representation){
+        better = 1;
+        *representation = colour[givenedge->start];
+    }
+    else if (colour[givenedge->start] > *representation){
+        return 0;
+    }
+    representation++;
+    if (better){
+        *representation = colour[givenedge->end];
+    }
+    else{
+        if (colour[givenedge->end] < *representation){
+            better = 1;
+        }
+        else if (colour[givenedge->end] > *representation){
+            return 0;
+        }
+    }
+    representation++;
+
+    for (i = 0; i < nv; i++) number[i] = 0;
+
+    number[givenedge->start] = 1; 
+    if (givenedge->start != givenedge->end)
+      {
+        number[givenedge->end] = 2;
+        last_number = 2;
+        startedge[1] = givenedge->invers;
+      }
+    else last_number = 1; 
+
+    actual_number = 1;
+    temp = givenedge;
+
+    while (last_number < nv)
+    {  
+        for (run = temp->next; run != temp; run = run->next)
+          { vertex = run->end;
+            if (!number[vertex])
+              { startedge[last_number] = run->invers;
+                last_number++; number[vertex] = last_number; 
+                vertex = colour[vertex]; }
+            else vertex=number[vertex];
+            if (better) *representation = vertex; 
+             else { if (vertex > (*representation)) return 0;
+                     else if (vertex < (*representation)) 
+                       { better = 1; *representation = vertex; }
+                  }
+            representation++;
+          }
+        if ((*representation) != 0) { better = 1; *representation = 0; }
+        representation++;
+        temp = startedge[actual_number];  actual_number++;
+    }
+
+    while (actual_number <= nv) 
+    {  
+        for (run = temp->next; run != temp; run = run->next)
+          { vertex = number[run->end]; 
+            if (better) *representation = vertex;
+            else                  
+              {
+                if (vertex > (*representation)) return 0;
+                if (vertex < (*representation))
+                  { better = 1; *representation = vertex; }
+              }
+            representation++;
+          }
+        if ((*representation) != 0) { better = 1; *representation = 0; }
+        representation++;
+        temp = startedge[actual_number];  actual_number++;
+    }
+
+    if (better) return 2;
+    return 1;
+}
+
+/****************************************************************************/
+
+static int 
+my_testcanon_mirror_init(EDGE *givenedge, int representation[], int colour[])
+
+/* Tests whether starting from a given edge and constructing the code in
+   "->prev" direction, an automorphism or even a better representation can 
+   be found. A better representation will be completely constructed and 
+   returned in "representation".  It works pretty similar to testcanon except 
+   for obviously necessary changes, so for extensive comments see testcanon */
+{
+    EDGE *temp, *run;  
+    EDGE *startedge[MAXN+1]; 
+    int number[MAXN], i; 
+    int better = 0; /* is the representation already better ? */
+    int last_number, actual_number, vertex;
+
+    if (colour[givenedge->start] < *representation){
+        better = 1;
+        *representation = colour[givenedge->start];
+    }
+    else if (colour[givenedge->start] > *representation){
+        return 0;
+    }
+    representation++;
+    if (better){
+        *representation = colour[givenedge->end];
+    }
+    else{
+        if (colour[givenedge->end] < *representation){
+            better = 1;
+        }
+        else if (colour[givenedge->end] > *representation){
+            return 0;
+        }
+    }
+    representation++;
+
+    for (i = 0; i < nv; i++) number[i] = 0;
+
+    number[givenedge->start] = 1;
+    if (givenedge->start != givenedge->end)
+      {
+        number[givenedge->end] = 2;
+        last_number = 2;
+        startedge[1] = givenedge->invers;
+      }
+    else last_number = 1; 
+
+    actual_number = 1;
+    temp = givenedge;
+
+    while (last_number < nv)
+    {  
+        for (run = temp->prev; run != temp; run = run->prev)
+          { vertex = run->end;
+            if (!number[vertex])
+              { startedge[last_number] = run->invers;
+                last_number++; number[vertex] = last_number; 
+                vertex = colour[vertex]; }
+            else vertex=number[vertex];
+            if (better) *representation = vertex; 
+            else { if (vertex > (*representation)) return 0;
+                   else if (vertex < (*representation)) 
+                     { better = 1; *representation = vertex; }
+                 }
+            representation++; 
+          }
+        if ((*representation) != 0) { better = 1; *representation = 0; }
+        representation++;
+        temp = startedge[actual_number];  actual_number++;
+    }
+
+    while (actual_number <= nv) 
+    {  
+        for (run = temp->prev; run != temp; run = run->prev)
+          { vertex = number[run->end]; 
+            if (better) *representation = vertex;
+            else                  
+              {
+                if (vertex > (*representation)) return 0;
+                if (vertex < (*representation))
+                  { better = 1; *representation = vertex; }
+              }
+            representation++;
+          }
+       if ((*representation) != 0) { better = 1; *representation = 0; }
+       representation++;
+       temp = startedge[actual_number];  actual_number++;
+    }
+
+    if (better) return 2;
+    return 1;
+}
+
+
+static int is_canon_4_fives(EDGE *E, int *nbtot){
     repr[0] = MAXE + MAXN + 10;
 
     int num = 0;
     int test;
     register int i, j;
-    register EDGE *e = firstedge[vert];
-    for (i = 0; i < 4; i++){
-        test = testcanon_init(e, repr, colour);
-        if (test == 2){
-            num = 1;
-        }
-        else if (test == 1){
-            num++;
-        }
+    register EDGE *e = E;
 
-        test = testcanon_mirror_init(e, repr, colour);
-        if (test == 2){
-            num = 1;
-        }
-        else if (test == 1){
-            num++;
-        }
+    testcanon_first_init(e, repr, colour);
+    testcanon_mirror_init(e, repr, colour);
+    
+    testcanon_init(e->next->next, repr, colour);
+    testcanon_mirror_init(e->next->next, repr, colour);
 
-        e = e->next;
-    }
-
-    for (i = 0; i < nv; i++){
+    for (i = 0; i < nv - 1; i++){
         if (degree[i] == 4){
             e = firstedge[i];
             if (degree[e->end] == 5 && degree[e->next->end] == 5 && degree[e->next->next->end] == 5 && degree[e->prev->end] == 5 && degree[e->prev->prev->end] == 5){
@@ -21055,7 +21562,7 @@ static int is_canon_4_fives(int vert, int *nbtot){
         }
     }
 
-    *nbtot = num-1;
+    *nbtot = num;
     return 1;
 }
 
@@ -21075,7 +21582,7 @@ static int is_canon_3_fives(int vert, int *nbtot){
                 }
                 else if (test == 1){
                     num++;
-                }//*/
+                }
             }
 
             if (degree[e->prev->end] == 5 && degree[e->prev->prev->end] == 5){
@@ -21085,7 +21592,7 @@ static int is_canon_3_fives(int vert, int *nbtot){
                 }
                 else if (test == 1){
                     num++;
-                }//*/
+                }
             }
         }
 
@@ -21093,11 +21600,14 @@ static int is_canon_3_fives(int vert, int *nbtot){
     }
 
     for (i = 0; i < nv; i++){
-        if (degree[i] == 4){
+        if (degree[i] == 4 && i != vert){
             e = firstedge[i];
             for (j = 0; j < 4; j++){
                 if (degree[e->end] == 5){
                     if (degree[e->next->end] == 5 && degree[e->next->next->end] == 5){
+                        if (degree[e->prev->end] == 5){
+                            return 0;
+                        }
                         test = testcanon(e, repr, colour);
                         if (test == 2){
                             return 0;
@@ -21107,7 +21617,10 @@ static int is_canon_3_fives(int vert, int *nbtot){
                         }//*/
                     }
 
-                    if (degree[e->prev->end] == 5 && degree[e->prev->prev->end] == 5){
+                    else if (degree[e->prev->end] == 5 && degree[e->prev->prev->end] == 5){
+                        if (degree[e->next->end] == 5){
+                            return 0;
+                        }
                         test = testcanon_mirror(e, repr, colour);
                         if (test == 2){
                             return 0;
@@ -21122,7 +21635,7 @@ static int is_canon_3_fives(int vert, int *nbtot){
         }
     }
 
-    *nbtot = num-1;
+    *nbtot = num;
     return 1;
 }
 
@@ -21133,6 +21646,7 @@ static int is_canon_2_fives(int vert1, int vert2, int *nbtot){
     int test;
     register int i, j;
     register EDGE *e = firstedge[vert1];
+    
     for (i = 0; i < 4; i++){
         if (degree[e->end] == 5){
             if (degree[e->next->end] == 5){
@@ -21189,7 +21703,7 @@ static int is_canon_2_fives(int vert1, int vert2, int *nbtot){
     }
 
     for (i = 0; i < nv; i++){
-        if (degree[i] == 4){
+        if (degree[i] == 4 && i != vert1 && i != vert2){
             e = firstedge[i];
             for (j = 0; j < 4; j++){
                 if (degree[e->end] == 5){
@@ -21217,7 +21731,7 @@ static int is_canon_2_fives(int vert1, int vert2, int *nbtot){
         }
     }
 
-    *nbtot = num-1;
+    *nbtot = num;
     return 1;
 }
 
@@ -21226,13 +21740,15 @@ static int is_canon_oriented(int vert, int orient, int *nbtot){
     repr[0] = MAXN + MAXE + 10;
     register int i, j;
     register EDGE *e = firstedge[vert];
-    for (i = 0; i < degree[vert]; i++){
+    int new_colour[nv];
+    
+    for (i = 0; i < 4; i++){
         if (degree[e->end] == 5){
-            if (orient == 0){
-                if (degree[e->next->end] == 5) testcanon_init(e, repr, colour);
+            if (orient){
+                if (degree[e->prev->end] == 5) testcanon_mirror_init(e, repr, colour);
             }
             else {
-                if (degree[e->prev->end] == 5) testcanon_mirror_init(e, repr, colour);
+                if (degree[e->next->end] == 5) testcanon_init(e, repr, colour);
             }
         }
         e = e->next;
@@ -21274,65 +21790,45 @@ static int is_canon_oriented(int vert, int orient, int *nbtot){
 
 
 static int 
-my_canon(int lcolour[], int *nbtot, int *nbop)
+my_canon(int *nbtot, int *nbop)
 
 /* Checks whether the last vertex (number: nv-1) is canonical or not. 
    Returns 1 if yes, 0 if not. One of the criterions a canonical vertex 
    must fulfill is that its colour is minimal.
 
    IT IS ASSUMED that the values of the colour function are positive
-   and at most INT_MAX-MAXN.
- 
-   A possible starting edge for the construction of a representation is 
-   one with lexicographically minimal colour pair (start,INT_MAX-end).
-   In can_numberings[][] the canonical numberings are stored as sequences 
-   of oriented edges.  For every 0 <= i,j < *nbtot and every 
-   0 <= k < ne the edges can_numberings[i][k] and can_numberings[j][k] can 
-   be mapped onto each other by an automorphism. The first 
-   *nbop numberings are orientation preserving while 
-   the rest is orientation reversing.
-
-   In case of only 1 automorphism, in can_numberings[0][0] the "canonical" 
-   edge is given.  It is one edge emanating at the canonical vertex. The 
-   rest of the numbering is not given. 
-
-   In case of nontrivial automorphisms, can[0] starts with a list of edges 
-   adjacent to nv-1. In case of an orientation preserving numbering the deges 
-   are listed in ->next direction, otherwise in ->prev direction.
-
-   Works OK if at least one vertex has valence >= 3. Otherwise some numberings 
-   are computed twice, since changing the orientation (the cyclic order around 
-   each vertex) doesn't change anything */
-{
+   and at most INT_MAX-MAXN. */
+ {
+    repr[0] = MAXN + MAXE + 10;
     int i, last_vertex, test;
-    int minstart, maxend; /* (minstart,maxend) will be the chosen colour 
+    int minstart, maxend, maxend2 ; /* (minstart,maxend) will be the chosen colour 
                                 pair of an edge */
     EDGE *startlist_last[5], *startlist[7*MAXN], *run, *end;
     int list_length_last, list_length;
-    int representation[MAXE];
-    EDGE *numblist[MAXE], *numblist_mirror[MAXE]; /* lists of edges where 
-                        starting gives a canonical representation */
     int numbs = 1, numbs_mirror = 0;
-    int colour[MAXN];
-
-    for (i=0; i<nv; i++) colour[i]=lcolour[i]+MAXN;
-                               /* to distinguish colours from vertices */
     last_vertex = nv-1;
 
     minstart = degree[last_vertex];
+
 
 /* determine the smallest possible end for the vertex "last_vertex" */
 
     list_length_last = 1; startlist_last[0] = end = firstedge[last_vertex];
     maxend = degree[end->end];
+    maxend2 = MIN(degree[end->prev->end], degree[end->next->end]);
 
     for (run = end->next; run != end; run = run->next)
       { if (degree[run->end] < maxend)
           { startlist_last[0] = run; 
-            list_length_last = 1; maxend = degree[run->end];}
-        else if (degree[run->end] == maxend)
-          { startlist_last[list_length_last] = run; list_length_last++; }
+            list_length_last = 1; maxend = degree[run->end]; maxend2 = MIN(degree[run->next->end], degree[run->prev->end]);}
+        else if (degree[run->end] == maxend){
+            if (MIN(degree[run->next->end], degree[run->prev->end]) < maxend2){
+                list_length_last = 1; maxend = degree[run->end]; maxend2 = MIN(degree[run->next->end], degree[run->prev->end]);
+            }
+            else if(MIN(degree[run->next->end], degree[run->prev->end]) == maxend2)
+                { startlist_last[list_length_last] = run; list_length_last++; }
       }
+    }
 
 /* Now we know the pair that SHOULD be minimal and we can determine a list 
    of all edges with this colour pair. If a new pair is found that is even 
@@ -21347,8 +21843,13 @@ my_canon(int lcolour[], int *nbtot, int *nbop)
             do
             {
               if (degree[run->end] < maxend) return 0;
-              if (degree[run->end] == maxend)
-                { startlist[list_length] = run; list_length++; }
+              if (degree[run->end] == maxend){
+                if (MIN(degree[run->next->end], degree[run->prev->end]) < maxend2) return 0;
+                    if (MIN(degree[run->next->end], degree[run->prev->end]) == maxend2){
+                    startlist[list_length] = run; 
+                    list_length++;
+                }
+            }
               run = run->next;
             } while (run != end);
           }
@@ -21357,28 +21858,24 @@ my_canon(int lcolour[], int *nbtot, int *nbop)
 /* OK -- so there is no smaller pair and now we have to determine the 
    smallest representation around vertex "last_vertex": */
 
-    testcanon_first_init(startlist_last[0], representation, colour);
-    numblist[0] = startlist_last[0];
-    test = testcanon_mirror_init(startlist_last[0], representation, colour);
+    testcanon_first_init(startlist_last[0], repr, colour);
+    test = testcanon_mirror_init(startlist_last[0], repr, colour);
     if (test == 1) 
-      { numbs_mirror = 1; numblist_mirror[0] = startlist_last[0]; }
+      { numbs_mirror = 1;}
     else if (test == 2)  
-      { numbs_mirror = 1; numbs = 0; 
-        numblist_mirror[0] = startlist_last[0]; }
+      { numbs_mirror = 1; numbs = 0; }
 
     for (i = 1; i < list_length_last; i++)
-      { test = testcanon_init(startlist_last[i], representation, colour);
-        if (test == 1) { numblist[numbs] = startlist_last[i]; numbs++; }
+      { test = testcanon_init(startlist_last[i], repr, colour);
+        if (test == 1) {numbs++; }
         else if (test == 2) 
-          { numbs_mirror = 0; numbs = 1; numblist[0] = startlist_last[i]; }
+          { numbs_mirror = 0; numbs = 1;}
             test = testcanon_mirror_init(startlist_last[i], 
-                                                     representation, colour);
+                                                     repr, colour);
           if (test == 1)  
-            { numblist_mirror[numbs_mirror] = startlist_last[i]; 
-              numbs_mirror++; }
+            {  numbs_mirror++; }
           else if (test == 2) 
-            { numbs_mirror = 1; numbs = 0; 
-              numblist_mirror[0] = startlist_last[i]; }
+            { numbs_mirror = 1; numbs = 0;}
       }
 
 /* Now we know the best representation we can obtain starting at last_vertex. 
@@ -21387,15 +21884,13 @@ my_canon(int lcolour[], int *nbtot, int *nbop)
 
     for (i = 0; i < list_length; i++)
       {
-        //if (skip_gadget_g(startlist[i]) == 0){
-            test = testcanon(startlist[i], representation, colour);
-            if (test == 1) { numblist[numbs] = startlist[i]; numbs++; }
-            else if (test == 2 && skip_gadget_e(startlist[i]) == 0) return 0;
-            test = testcanon_mirror(startlist[i], representation, colour);
-            if (test == 1) 
-              { numblist_mirror[numbs_mirror] = startlist[i]; numbs_mirror++; }
-            else if (test == 2 && skip_gadget_e_mirror(startlist[i]) == 0) return 0;
-        //}
+        test = testcanon(startlist[i], repr, colour);
+        if (test == 1) { numbs++; }
+        else if (test == 2 && skip_gadget_e(startlist[i]) == 0) return 0;
+        test = testcanon_mirror(startlist[i], repr, colour);
+        if (test == 1) 
+          { numbs_mirror++; }
+        else if (test == 2 && skip_gadget_e_mirror(startlist[i]) == 0) return 0;
       }
 
     *nbop = numbs;
@@ -21596,6 +22091,31 @@ static int case_f_subcase_g(EDGE *e, int count_f){
     return destroyed_f == count_f;
 }
 
+static int case_one_subcase_g(EDGE *e, int count_one){
+    int destroyed_one = 0;
+    EDGE *helper = e->invers->next;
+    if (degree[helper->start] == 5){
+        for (int i = 0; i < 3; i++){
+            destroyed_one += starting_gadget[helper->end] == 11;
+            helper = helper->next;
+        }
+    }
+
+    helper = e->next->next->invers->prev;
+    if (degree[helper->start] == 5){
+        for (int i = 0; i < 3; i++){
+            destroyed_one += starting_gadget[helper->end] == 11;
+            helper = helper->prev;
+        }
+    }
+
+    if (degree[e->start] != 5 && degree[e->next->end] !=5 && destroyed_one != count_one){
+        return 0;
+    }
+
+    return 1;
+}
+
 static void find_narboni_extensions(
     int numb_total,
     EDGE *ext_a[], int* numexta,
@@ -21626,11 +22146,11 @@ static void find_narboni_extensions(
     int kg = 0;
     int kh = 0;
     
-    EDGE *helper;
-    EDGE *helper2;
+    register EDGE *helper, *helper2;
     EDGE *list[4];
 
     int count_fours = 0;
+    int count_fours_with_1neigh_five = 0;
     int count_fours_with_2neigh_five = 0;
     int count_fours_with_3neigh_five = 0;
     int count_a = 0;
@@ -21671,6 +22191,10 @@ static void find_narboni_extensions(
                         starting_gadget[i] = 7;
                         count_f++; 
                     }
+                }
+                else if (degree[helper->end] == 5 && degree[helper->next->end] > 5 && degree[helper->prev->end] > 5 && degree[helper->prev->prev->end] > 5){
+                    count_fours_with_1neigh_five++;
+                    starting_gadget[i] = 11;
                 }
 
                 helper = helper->next;
@@ -21818,8 +22342,9 @@ static void find_narboni_extensions(
             if (count_fours_with_2neigh_five < 3 && !count_c && helper->next < helper->next->invers && is_valid_extend_g(helper)){
                 if (degree[helper->start] == 5 || degree[helper->next->end] == 5 || count_fours_with_2neigh_five == 0){
                     if (case_a_subcase_g(helper, count_a) && case_d_subcase_g(helper, count_d) && case_b_subcase_g(helper, count_b) 
-                    && case_e_subcase_g(helper, count_e) && case_f_subcase_g(helper, count_f)){
+                    && case_e_subcase_g(helper, count_e) && case_f_subcase_g(helper, count_f) && case_one_subcase_g(helper, count_fours_with_1neigh_five)){
                         extend_g(helper, list);
+
                         testcanon_first_init(helper->next->invers, repr, colour);
                         testcanon_mirror_init(helper->next->invers, repr, colour);
                         
@@ -21926,7 +22451,7 @@ scannarboni(int nbtot, int nbop){
 
     int numexta, numextam, numextb, numextc, numextd, numexte, numextem, numextf, numextg, numexth;
     EDGE *exta[MAXE/3], *extam[MAXE/3], *extb[MAXE/3], *extc[MAXE/3], *extd[MAXE/3], *exte[MAXE/3], *extem[MAXE/3],
-    *extf[MAXE/3], *extg[MAXE/3], *exth[MAXE/3];
+    *extf[MAXE/3], *extg[MAXE], *exth[MAXE];
 
     int xnbtot, xnbop;
     find_narboni_extensions(nbtot,
@@ -21963,7 +22488,7 @@ scannarboni(int nbtot, int nbop){
 
     for (i = 0; i < numextc; i++){
         extend_c(extc[i], list);
-        if (is_canon_4_fives(nv - 1, &xnbtot)){scannarboni(xnbtot, 2);}
+        if (is_canon_4_fives(extc[i]->next->invers, &xnbtot)){scannarboni(xnbtot, 2);}
         reduce_c(extc[i], list);
     }
 
@@ -21993,13 +22518,13 @@ scannarboni(int nbtot, int nbop){
 
     for (i = 0; i < numextg; i++){
         extend_g(extg[i], list);
-        if (my_canon(colour, &xnbtot, &xnbop)){scannarboni(xnbtot, xnbop);}
+        if (my_canon(&xnbtot, &xnbop)){scannarboni(xnbtot, xnbop);}
         reduce_g(extg[i], list);
     }
 
     for (i = 0; i < numexth; i++){
         extend_h(exth[i], list);
-        if (my_canon(colour, &xnbtot, &xnbop)) {scannarboni(xnbtot, xnbop);}
+        if (my_canon(&xnbtot, &xnbop)) {scannarboni(xnbtot, xnbop);}
         reduce_h(exth[i], list);
     }
 }
