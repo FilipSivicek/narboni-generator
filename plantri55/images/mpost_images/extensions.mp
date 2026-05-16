@@ -41,9 +41,9 @@ def drawTriangle(expr pos, len, angle) =
 enddef;
 
 numeric LabelScale;
-LabelScale:= 3.2;
+LabelScale:= 2.9;
 
-u:=10mm;
+u:=5mm;
 d = 2u;
 s = 2.5u;
 
@@ -67,6 +67,8 @@ p[9]:= middle + (-1.2u, -1.2u);
 p[10]:= middle + (1.2u, -1.2u);
 p[11]:= middle + (1.2u,1.2u);
 p[12]:= middle + (-1.2u,1.2u);
+
+for i:=9,10,11,12: p[i]:= p[i] + (0.5u, 0); endfor;
 
 pickup pencircle scaled 14pt;
 for i:=5,6,7,8,9,10,11,12: draw p[i]; endfor;
@@ -94,6 +96,8 @@ drawArrow((19u, 0), 8u);
 
 for i:=1,2,3,4,5,6,7,8,9,10,11,12: p[i]:= p[i] + (30u, 0); endfor;
 p13:= p5 + (1.5u, 0);
+
+for i:=9,10,11,12: p[i]:= p[i] + (1u, 0); endfor;
 
 pickup pencircle scaled 14pt;
 for i:=5,6,7,8,9,10,11,12,13: draw p[i]; endfor;
@@ -178,6 +182,10 @@ draw p[5]--p[6]--p[7]--p[8]--p[5];
 
 for i:= 1,2,3,4: drawTriangle(p[i + 4], 2u, 45 + i*90); endfor;
 
+label.llft(btex $v$ etex scaled LabelScale, p9 + (-0.15u, -0.15u));
+label.lrt(btex $u$ etex scaled LabelScale, p10 + (0.15u, -0.15u));
+label.ulft(btex $u'$ etex scaled LabelScale, p12);
+
 endfig;
 
 beginfig(3)
@@ -260,10 +268,10 @@ p3:= p1 rotatedabout(p2, 270);
 p4:= p2 rotatedabout(p1, 90);
 p5:= (p1+p2+p3+p4)/4;
 
-p6:= p3 + (2u,u);
+p6:= p3 + (4u,u);
 
 p7:= p5 rotatedabout(p4, 90);
-p8:= p4 + (-2u,u);
+p8:= p4 + (-4u,u);
 
 p9:= p1 + (-2.5u, -2.5u);
 p10:= p2 + (2.5u, -2.5u);
