@@ -1,1 +1,1 @@
-# rocnikovyProjekt
+# Bachelor's thesis
