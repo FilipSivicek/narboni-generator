@@ -20407,6 +20407,9 @@ get_graph_from_file(void)
 }
 
 /****************************************************************************/
+// this is where our work starts. it ends at the next /*...*/
+// my_test_canon* function were copied from plantri with slight modifications.
+// the same goes for my_canon.
 
 static int all_repr[10][MAXE][MAXE];
 static int repr_found[10];
@@ -20994,11 +20997,9 @@ static int skip_gadget_h(EDGE* e){
 }
 
 
-/**************************************************************************/
 
 // This function tests, if given edge can be start of canonical labeling
 // This function also calculates, if any automorphisms are found
-// F.S.
 static int 
 my_testcanon(EDGE *givenedge, int representation[])
 
@@ -21118,8 +21119,6 @@ my_testcanon(EDGE *givenedge, int representation[])
     return 1;
 }
 
-/*****************************************************************************/
-
 static int 
 my_testcanon_mirror(EDGE *givenedge, int representation[])
 
@@ -21198,8 +21197,6 @@ my_testcanon_mirror(EDGE *givenedge, int representation[])
 
     return 1;
 }
-
-/****************************************************************************/
  
 static void
 my_testcanon_first_init(EDGE *givenedge, int representation[])
@@ -21266,8 +21263,6 @@ my_testcanon_first_init(EDGE *givenedge, int representation[])
 
     return;
 }
-
-/****************************************************************************/
  
 static int 
 my_testcanon_init(EDGE *givenedge, int representation[])
@@ -21364,8 +21359,6 @@ my_testcanon_init(EDGE *givenedge, int representation[])
     if (better) return 2;
     return 1;
 }
-
-/****************************************************************************/
 
 static int 
 my_testcanon_mirror_init(EDGE *givenedge, int representation[])
@@ -22431,6 +22424,7 @@ static void
 scannarboni(int nbtot, int nbop){
     if (nv == maxnv){
         got_one(nbtot, nbop, 4);
+        // you need to uncomment the lines below and comment the line above for the verifier_script.sh to work properly 
         //find_canon_code(repr, colour);
         //rep_file(repr, nv, outfile);
 
@@ -22531,7 +22525,9 @@ narboni_dispatch(void){
     scannarboni(2, 2);
 }
 
+// this is where our work ends.
 /****************************************************************************/
+
 
 static void
 #ifdef __GNUC__

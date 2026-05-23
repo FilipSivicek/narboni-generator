@@ -43,7 +43,7 @@ enddef;
 numeric LabelScale;
 LabelScale:= 2.9;
 
-u:=5mm;
+u:= 5mm;
 d = 2u;
 s = 2.5u;
 
@@ -514,7 +514,7 @@ label.bot(btex $v_8$ etex scaled LabelScale, p1 + (0, -0.3u));
 
 endfig;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% G
 beginfig(7);
 
 pair base;
@@ -557,6 +557,8 @@ for i=1 upto 4: draw p[i]; endfor;
 
 label.top(btex $v_1$ etex scaled LabelScale, p4 + (-0.1u, 0.3u));
 label.bot(btex $v_2$ etex scaled LabelScale, p2 + (0.1u, -0.3u));
+label.rt(btex $v_3$ etex scaled LabelScale, p3 + (0.1u, 0.3u));
+label.lft(btex $v_4$ etex scaled LabelScale, p1 + (-0.1u, -0.3u));
 
 pickup pencircle scaled 0.9mm;
 drawArrow((8u, 0), 8u);
@@ -591,10 +593,12 @@ draw base;
 
 label.top(btex $v_1$ etex scaled LabelScale, p4 + (-0.1u, 0.3u));
 label.bot(btex $v_2$ etex scaled LabelScale, p2 + (0.1u, -0.3u));
+label.rt(btex $v_3$ etex scaled LabelScale, p3 + (0.1u, 0.3u));
+label.lft(btex $v_4$ etex scaled LabelScale, p1 + (-0.1u, -0.3u));
 
 endfig;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% H
 beginfig(8);
 
 pair base;
@@ -627,6 +631,8 @@ for i=1 upto 5: draw p[i]; endfor;
 label.llft(btex $v$ etex scaled LabelScale, p1 + (-0.2u, -0.1u));
 label.urt(btex $v_1$ etex scaled LabelScale, p4 + (0,0.1u));
 label.rt(btex $v_2$ etex scaled LabelScale, p3 + (0.3u,-0.2u));
+label.ulft(btex $v_3$ etex scaled LabelScale, p5 + (0u, 0.1u));
+label.bot(btex $v_4$ etex scaled LabelScale, p2 + (0u, -0.5u));
 
 pickup pencircle scaled 0.9mm;
 drawArrow((10u, 0), 8u);
@@ -655,6 +661,8 @@ draw base;
 label.llft(btex $v$ etex scaled LabelScale, p1 + (-0.2u, -0.1u));
 label.urt(btex $v_1$ etex scaled LabelScale, p4 + (0,0.1u));
 label.rt(btex $v_2$ etex scaled LabelScale, p3 + (0.3u,-0.2u));
+label.ulft(btex $v_3$ etex scaled LabelScale, p5 + (0u, 0.1u));
+label.bot(btex $v_4$ etex scaled LabelScale, p2 + (0u, -0.5u));
 
 endfig;
 
