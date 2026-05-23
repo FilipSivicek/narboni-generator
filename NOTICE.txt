@@ -1,6 +1,8 @@
 This project is a derivative work of plantri, which was made by Gunnar Brinkmann and Brendan McKay and is available at https://users.cecs.anu.edu.au/~bdm/plantri/
 
-I have modified files makefile.
+I have modified files makefile. I have also modified source code of plantri - added some parts.
 
-I have created 2 shell scripts - tester.sh and updater.sh. Other programs that I have created are located in directory planri55/my_work.
+I have created shell scripts: tester.sh, updater.sh, time_checker.sh, time_ladder.sh, speed_test.sh, verifier_script.sh, no_symetries_script.sh. 
+I have also created programms: canon_code_to_adj_matrix.py, to_adj_matrix.cpp, verifier.py.
+Other programs that I have created are located in directory planri55/my_work.
 
