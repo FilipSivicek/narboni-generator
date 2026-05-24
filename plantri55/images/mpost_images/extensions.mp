@@ -430,6 +430,9 @@ base:= (0,0);
 pair basePent;
 basePent:= base + (0, -5u);
 
+pair baseTrian;
+baseTrian:= base + (0, -2u);
+
 pair p[];
 
 for i=1 upto 3: p[i]:= baseTrian rotatedabout(base, -120 + 120 * i); endfor;
@@ -670,6 +673,7 @@ endfig;
 beginfig(9);
 
 LabelScale:= 4;
+LabelEScale:= 4;
 
 pair p[];
 p[1]:= (0, 0);
@@ -704,11 +708,11 @@ for i:= 1,2,3,4: drawTriangle(p[i + 4], 2u, 45 + i*90); endfor;
 
 
 labeloffset:= 7bp;
-label.lft(btex e etex scaled 7, (p8+p9)/2);
-label.top(btex extend3$($e$->$next$->$next$)$ etex scaled LabelScale, (26u, 3u));
-drawArrow((18u, 0), 18u);
+label.lft(btex e etex scaled LabelEScale, (p8+p9)/2);
+label.top(btex extend3$($e$->$next$->$next$)$ etex scaled LabelScale, (36u, 3u));
+drawArrow((28u, 0), 18u);
 
-for i:=1,2,3,4,5,6,7,8,9: p[i]:= p[i] + (38u, 0); endfor;
+for i:=1,2,3,4,5,6,7,8,9: p[i]:= p[i] + (55u, 0); endfor;
 p10:= (p5+p6+p9)/3;
 
 path q;
@@ -731,12 +735,12 @@ draw p9--p10;
 
 for i:= 1,2,3,4: drawTriangle(p[i + 4], 2u, 45 + i*90); endfor;
 
-label.lft(btex e etex scaled 7, (p8+p9)/2);
+label.lft(btex e etex scaled LabelEScale, (p8+p9)/2);
 
 drawArrow((2u, -17u), 12u);
 label.top(btex extend4$($e$->$next$)$ etex scaled LabelScale, (7u, -14u));
 
-for i:=1,2,3,4,5,6,7,8,9,10: p[i]:= p[i] + (-22u, -17u); endfor;
+for i:=1,2,3,4,5,6,7,8,9,10: p[i]:= p[i] + (-38u, -17u); endfor;
 p11:=(p9+p6)/2;
 
 path q;
@@ -759,7 +763,7 @@ draw p9--p10--p11--p7;
 
 for i:= 1,2,3,4: drawTriangle(p[i + 4], 2u, 45 + i*90); endfor;
 
-label.lft(btex e etex scaled 7, (p8+p9)/2);
+label.lft(btex e etex scaled LabelEScale, (p8+p9)/2);
 
 drawArrow((35u, -17u), 12u);
 label.top(btex extend4$($e$)$ etex scaled LabelScale, (41u, -14u));
@@ -799,8 +803,8 @@ draw q;
 ahlength:= 16bp;
 drawarrow subpath (0, 0.7 * length(q)) of q;
 
-labeloffset:=15bp;
-label.lft(btex e etex scaled 7, (p8+p9)/2);
+labeloffset:=10bp;
+label.lft(btex e etex scaled LabelEScale, (p8+p9)/2);
 endfig;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Detailed E_F
@@ -811,6 +815,9 @@ base:= (0,0);
 
 pair basePent;
 basePent:= base + (0, -5u);
+
+pair baseTrian;
+baseTrian:= base + (0, -2u);
 
 pair p[];
 

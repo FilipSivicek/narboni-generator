@@ -20408,7 +20408,7 @@ get_graph_from_file(void)
 
 /****************************************************************************/
 // this is where our work starts. it ends at the next /*...*/
-// my_test_canon* function were copied from plantri with slight modifications.
+// my_test_canon* function were copied from plantri with slight modifications to them.
 // the same goes for my_canon.
 
 static int all_repr[10][MAXE][MAXE];
